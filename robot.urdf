@@ -37,7 +37,7 @@
             <geometry>
                 <cylinder radius="0.2" length="0.05"/>
             </geometry>
-            <origin xyz="0 -0.2 1.0" rpy="1.58 0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <material name="gray"/>
         </visual>
         <inertial>
@@ -45,7 +45,7 @@
             <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
         </inertial>
         <collision>
-            <origin xyz="0.0 -0.2 1.0" rpy="1.58 0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <cylinder radius="0.2" length="0.05"/>
             </geometry>
@@ -57,7 +57,7 @@
             <geometry>
                 <cylinder radius="0.2" length="0.05"/>
             </geometry>
-            <origin xyz="0.0 0.2 1.0" rpy="1.58 0 0" />
+            <origin xyz="0.0 0 0" rpy="0 0 0" />
             <material name="gray"/>
         </visual>
         <inertial>
@@ -65,7 +65,7 @@
             <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
         </inertial>
         <collision>
-            <origin xyz="0.0 0.2 1.0" rpy="1.58 0 0" />
+            <origin xyz="0.0 0 0" rpy="0 0 0" />
             <geometry>
                 <cylinder radius="0.2" length="0.05"/>
             </geometry>
@@ -75,18 +75,18 @@
     <joint name="corpus_to_left_wheel" type="continuous">
         <parent link="corpus"/>
         <child link="left_wheel"/>
-        <origin xyz="0.0 0 0" rpy="0 0.0 0"/>
+        <origin xyz="0 -0.2 1" rpy="0 -1.5707 1.5707"/>
         <limit effort="0" velocity="0"/>
         <dynamics damping="1" friction="0"/>
-        <axis xyz="0 1 0"/>
+        <axis xyz="0 0 1"/>
     </joint>
     <joint name="corpus_to_right_wheel" type="continuous">
         <parent link="corpus"/>
         <child link="right_wheel"/>
-        <origin xyz="0.0 0 0" rpy="0 0.0 0"/>
+        <origin xyz="0 0.2 1" rpy="0 -1.5707 1.5707"/>
         <limit effort="0" velocity="0"/>
         <dynamics damping="1" friction="0"/>
-        <axis xyz="0 1 0"/>
+        <axis xyz="0 0 1"/>
     </joint>
 
 

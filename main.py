@@ -13,14 +13,14 @@ field = pb.loadURDF("field.urdf",[0,0,-0.1])
 box1 = pb.loadURDF("box.urdf", [1,1,0.25])
 box2 = pb.loadURDF("box.urdf", [4,0,0.25])
 robot1 = pb.loadURDF("robot.urdf",[2,0,1])
-'''
-# get rid of all the default damping forces
-pb.changeDynamics(robotId, 1, linearDamping=0, angularDamping=0)
-pb.changeDynamics(robotId, 2, linearDamping=0, angularDamping=0)
-'''
- # turn off the motor for the free motion
-pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=1, targetVelocity= 1, controlMode=pb.VELOCITY_CONTROL)
 
+# get rid of all the default damping forces
+#pb.changeDynamics(robot1, 1, linearDamping=0, angularDamping=0)
+#pb.changeDynamics(robot1, 2, linearDamping=0, angularDamping=0)
+
+ # turn off the motor for the free motion
+pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=1, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
+pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=0, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
 
 
 while True:
