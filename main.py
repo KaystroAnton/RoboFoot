@@ -18,11 +18,6 @@ robot1 = pb.loadURDF("robot.urdf",[2,0,1])
 pb.changeDynamics(robotId, 1, linearDamping=0, angularDamping=0)
 pb.changeDynamics(robotId, 2, linearDamping=0, angularDamping=0)
 
-# go to the starting position
-pb.setJointMotorControl2(bodyIndex=robotId, jointIndex=1, targetposition=0, controlMode=pb.POSITION_CONTROL)
-for _ in range(1000):
-    pb.stepSimulation()
-
  # turn off the motor for the free motion
 pb.setJointMotorControl2(bodyIndex=robotId, jointIndex=1, targetVelocity= 1, controlMode=pb.VELOCITY_CONTROL)
 
