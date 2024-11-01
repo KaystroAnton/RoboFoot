@@ -1,4 +1,4 @@
-<robot name="RedTeamPlayer1">
+<robot name="2wheeledRobot">
 
     <material name="black">
         <color rgba="0 0 0 1"/>
@@ -75,7 +75,7 @@
     <joint name="corpus_to_left_wheel" type="continuous">
         <parent link="corpus"/>
         <child link="left_wheel"/>
-        <origin xyz="0 -0.2 1" rpy="0 -1.5707 1.5707"/>
+        <origin xyz="0 -0.2 1" rpy="0 -1.5707 -1.5707"/>
         <limit effort="0" velocity="0"/>
         <dynamics damping="1" friction="0"/>
         <axis xyz="0 0 1"/>
@@ -83,7 +83,7 @@
     <joint name="corpus_to_right_wheel" type="continuous">
         <parent link="corpus"/>
         <child link="right_wheel"/>
-        <origin xyz="0 0.2 1" rpy="0 -1.5707 1.5707"/>
+        <origin xyz="0 0.2 1" rpy="0 -1.5707 -1.5707"/>
         <limit effort="0" velocity="0"/>
         <dynamics damping="1" friction="0"/>
         <axis xyz="0 0 1"/>

@@ -3,16 +3,21 @@ import pybullet as pb
 import pybullet_data
 import time
 
+# parameters of simulation
+L = 0.35    # length of the corpus
+d = 0.4     # diameter of wheels
+alpha = 0   # the angle of the robot's course in radians (relative to the X axis)
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
 
 
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
-pb.setGravity(0,0,g)
+pb.setGravity(0,0, g)
 field = pb.loadURDF("field.urdf",[0,0,-0.1])
 box1 = pb.loadURDF("box.urdf", [1,1,0.25])
 box2 = pb.loadURDF("box.urdf", [4,0,0.25])
 robot1 = pb.loadURDF("robot.urdf",[2,0,1])
+
 
 # get rid of all the default damping forces
 #pb.changeDynamics(robot1, 1, linearDamping=0, angularDamping=0)
@@ -21,10 +26,19 @@ robot1 = pb.loadURDF("robot.urdf",[2,0,1])
  # turn off the motor for the free motion
 pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=1, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
 pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=0, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
+pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(3)[1])
+pb.resetBasePositionAndOrientation(3, posObj = [2,0,1], ornObj = pb.getQuaternionFromAxisAngle([0.0, 0.0, 1.0], 0))
+
+
 
 
 while True:
+    alpha =round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(3)[1])[2],3)
     pb.stepSimulation()
+    print(pb.getBasePositionAndOrientation(3))
+    #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg")
+    #print(pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg11111")
+    print(alpha)
     time.sleep(dt)
 
 pb.disconnect()
