@@ -34,7 +34,7 @@ robot1 = pb.loadURDF("robot.urdf",[0,0,0])
 pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=1, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
 pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=0, targetVelocity= 10, controlMode=pb.VELOCITY_CONTROL,force=100)
 pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(robot1)[1])
-pb.resetBasePositionAndOrientation(robot1, posObj = [2,0,1], ornObj = pb.getQuaternionFromAxisAngle([0.0, 0.0, 1.0], 0))
+pb.resetBasePositionAndOrientation(robot1, posObj = [0,0,0], ornObj = pb.getQuaternionFromAxisAngle([0.0, 0.0, 1.0], 0))
 
 
 
@@ -46,8 +46,8 @@ while True:
     #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg")
     #print(pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg11111")
     img = pb.getCameraImage(
-        width=IMG_SIDE,
-        height=IMG_SIDE,
+        width=IMG_SIDE+10,
+        height=IMG_SIDE+10,
         viewMatrix=pb.getDebugVisualizerCamera()[2],
         projectionMatrix=pb.getDebugVisualizerCamera()[3],
         renderer=pb.ER_BULLET_HARDWARE_OPENGL
