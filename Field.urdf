@@ -7,7 +7,7 @@
     <link name="field">
         <visual>
             <geometry>
-                <box size="20.0 20.0 -0.1"/>
+                <box size="8.0 8.0 -0.1"/>
             </geometry>
             <material name="white"/>
         </visual>

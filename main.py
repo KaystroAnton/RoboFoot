@@ -9,16 +9,16 @@ d = 0.4     # diameter of wheels
 alpha = 0   # the angle of the robot's course in radians (relative to the X axis)
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
-IMG_SIDE = 20
+IMG_SIDE = 2
 targetPosition = [[10,-15],0,0]    # [[positon x,y], oriantation angel, velocity] the aim of the robot
 
 
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
 pb.resetDebugVisualizerCamera(
-    cameraDistance=1,
+    cameraDistance=3,
     cameraYaw=-90,
     cameraPitch=-89.999,    # No image if set on 90
-    cameraTargetPosition=[0.0, 0.0, 1.0]
+    cameraTargetPosition=[0.0, 0.0, 3.0]
 )   # Set сamera directly above the field
 pb.setGravity(0,0, g)
 field = pb.loadURDF("field.urdf",[0,0,-0.1])
