@@ -107,7 +107,7 @@
         <dynamics damping="1" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
-    <joint name="corpus_to_center_wheel" type="continuous">
+    <joint name="corpus_to_center_wheel" type="revolute">
         <parent link="corpus"/>
         <child link="center_wheel"/>
         <origin xyz="0.1 0 0" rpy="0 -1.5707 -1.5707"/>
