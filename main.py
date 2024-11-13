@@ -18,15 +18,15 @@ targetPosition = [[10,-15],0,0]    # [[positon x,y], oriantation angel, velocity
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
 
 pb.resetDebugVisualizerCamera(
-    cameraDistance=1,
+    cameraDistance=3,
     cameraYaw=-90,
     cameraPitch=-89.999,    # No image if set on 90
-    cameraTargetPosition=[0.0, 0.0, -0.78]
+    cameraTargetPosition=[0.0, 0.0, 3]
 )   # Set сamera directly above the field
 
 pb.setGravity(0,0, g)
 
-field = pb.loadURDF("field.urdf",[0,0,-0.1])
+field = pb.loadURDF("field.urdf",[0,0,0])
 #robot1 = pb.loadURDF("robot.urdf",[0,0,0])
 
 # add aruco cube and aruco texture
@@ -63,11 +63,17 @@ while True:
     img = pb.getCameraImage(
         width=IMG_SIDE,
         height=IMG_SIDE,
-        viewMatrix=pb.getDebugVisualizerCamera()[2],
-        projectionMatrix=pb.computeProjectionMatrixFOV(fov=45, aspect=1, nearVal=0.1, farVal=100.0),
+        viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
+                                        cameraTargetPosition=[0, 0, 0.01],
+                                        cameraUpVector=[1.0, 0, 0]),
+        projectionMatrix=pb.computeProjectionMatrixFOV(fov=5, aspect=1, nearVal=0.02, farVal=3.5),
         renderer=pb.ER_TINY_RENDERER
     )
-
+    # print(pb.getDebugVisualizerCamera()[11]) #position of camera
+    pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
+                         cameraTargetPosition=[0, 0, 0.01],
+                         cameraUpVector=[0, 0, 1.0]
+                         )
     #print(alpha)
     time.sleep(dt)
 
