@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pybullet as pb
 import pybullet_data
@@ -15,7 +17,7 @@ g = -9.8    # Gravity force
 IMG_SIDE = 1000
 halfFieldSize = 4.0/2
 accuracy = 0.0005
-kd = 10 # koeff for control
+kd = 20 # koeff for control
 v = 1 # speed of the robot
 targetPosition = [[-2,1],0.0]    # [[positon x,y], oriantation angel] the aim of the robot
 xd = targetPosition[0][0]
@@ -67,17 +69,23 @@ while True:
     alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
     x=pb.getBasePositionAndOrientation(c2)[0][0]
     y=pb.getBasePositionAndOrientation(c2)[0][1]
-    while pow(x - xd,2) + pow(y - yd,2) > accuracy:
-        omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
-        movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
-        newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
-        #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1]), "dfgdfg")
-        pb.resetBasePositionAndOrientation(c2, newPosition, pb.getQuaternionFromEuler([0.0, 0.0, alpha+omega*dt]))
-        alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
-        x = pb.getBasePositionAndOrientation(c2)[0][0]
-        y = pb.getBasePositionAndOrientation(c2)[0][1]
-        pb.stepSimulation()
-        time.sleep(dt)
+    for j in range(100):
+        while pow(x - xd,2) + pow(y - yd,2) > accuracy:
+            omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
+            movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
+            newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
+            #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1]), "dfgdfg")
+            pb.resetBasePositionAndOrientation(c2, newPosition, pb.getQuaternionFromEuler([0.0, 0.0, alpha+omega*dt]))
+            alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
+            x = pb.getBasePositionAndOrientation(c2)[0][0]
+            y = pb.getBasePositionAndOrientation(c2)[0][1]
+            pb.stepSimulation()
+            time.sleep(dt)
+        print("for", targetPosition, "is fine", j)
+        targetPosition = [[random.uniform(-2.0, 2.0),random.uniform(-2.0, 2.0)], 0.0]
+        print(targetPosition)
+        xd = targetPosition[0][0]
+        yd = targetPosition[0][1]
 
     pb.stepSimulation()
     print(pb.getBasePositionAndOrientation(c2))
