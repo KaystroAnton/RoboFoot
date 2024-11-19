@@ -3,6 +3,7 @@ import pybullet as pb
 import pybullet_data
 import time
 import cv2
+import math
 
 # parameters of simulation
 L = 0.2    # length of the corpus
@@ -13,7 +14,12 @@ dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
 IMG_SIDE = 1000
 halfFieldSize = 4.0/2
-targetPosition = [[10,-15],0,0]    # [[positon x,y], oriantation angel, velocity] the aim of the robot
+accuracy = 0.0005
+kd = 1 # koeff for control
+v = 1 # speed of the robot
+targetPosition = [[-2,1],0.0]    # [[positon x,y], oriantation angel] the aim of the robot
+xd = targetPosition[0][0]
+yd = targetPosition[0][1]
 
 
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
@@ -58,9 +64,25 @@ detector = cv2.aruco.ArucoDetector(dictionary, parameters)
 
 
 while True:
-    #alpha =round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(robot1)[1])[2],3)
+    alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
+    x=pb.getBasePositionAndOrientation(c2)[0][0]
+    y=pb.getBasePositionAndOrientation(c2)[0][1]
+    while pow(x - xd,2) + pow(y - yd,2) > accuracy:
+        if xd-x != 0:
+            omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
+        movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
+        newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
+        print(omega*180/np.pi)
+        #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1]), "dfgdfg")
+        pb.resetBasePositionAndOrientation(c2, newPosition, pb.getQuaternionFromEuler([0.0, 0.0, alpha+omega*dt]))
+        alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
+        x = pb.getBasePositionAndOrientation(c2)[0][0]
+        y = pb.getBasePositionAndOrientation(c2)[0][1]
+        pb.stepSimulation()
+        time.sleep(dt)
+
     pb.stepSimulation()
-    #print(pb.getBasePositionAndOrientation(robot1))
+    print(pb.getBasePositionAndOrientation(c2))
     #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg")
     #print(pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg11111")
     img = pb.getCameraImage(
@@ -77,7 +99,6 @@ while True:
     )
     # pb.ER_BULLET_HARDWARE_OPENGL pb.ER_TINY_RENDERER
     # print(pb.getDebugVisualizerCamera()[11]) #position of camera
-    #print(alpha)
     time.sleep(dt)
 
 pb.disconnect()
