@@ -11,17 +11,18 @@ dx = 0.1    # distance from wheel axle to center
 alpha = 0   # the angle of the robot's course in radians (relative to the X axis)
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
-IMG_SIDE = 8
+IMG_SIDE = 1000
+halfFieldSize = 4.0/2
 targetPosition = [[10,-15],0,0]    # [[positon x,y], oriantation angel, velocity] the aim of the robot
 
 
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
 
 pb.resetDebugVisualizerCamera(
-    cameraDistance=3,
+    cameraDistance=1,
     cameraYaw=-90,
     cameraPitch=-89.999,    # No image if set on 90
-    cameraTargetPosition=[0.0, 0.0, 3]
+    cameraTargetPosition=[0.0, 0.0, 3.0]
 )   # Set сamera directly above the field
 
 pb.setGravity(0,0, g)
@@ -30,9 +31,11 @@ field = pb.loadURDF("field.urdf",[0,0,0])
 #robot1 = pb.loadURDF("robot.urdf",[0,0,0])
 
 # add aruco cube and aruco texture
-c = pb.loadURDF('aruco.urdf', (0.0, 0.0, 0.0), useFixedBase=True)
+c1 = pb.loadURDF('aruco.urdf', (halfFieldSize-0.1, halfFieldSize-0.1, 0.0), useFixedBase=True)
+c2 = pb.loadURDF('aruco.urdf', (0, 0, 0.0), useFixedBase=True)
 x = pb.loadTexture('aruco_cube.png')
-pb.changeVisualShape(c, -1, textureUniqueId=x)
+pb.changeVisualShape(c1, -1, textureUniqueId=x)
+pb.changeVisualShape(c2, -1, textureUniqueId=x)
 
 #init aruco detector
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
@@ -66,14 +69,14 @@ while True:
         viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
                                         cameraTargetPosition=[0, 0, 0.01],
                                         cameraUpVector=[1.0, 0, 0]),
-        projectionMatrix=pb.computeProjectionMatrixFOV(fov=5, aspect=1, nearVal=0.02, farVal=3.5),
+        projectionMatrix=pb.computeProjectionMatrixFOV(fov=2*np.arctan(halfFieldSize/pb.getDebugVisualizerCamera()[11][2])*180/np.pi,
+                                                       aspect=1,
+                                                       nearVal=0.02,
+                                                       farVal=3.5),
         renderer=pb.ER_TINY_RENDERER
     )
+    # pb.ER_BULLET_HARDWARE_OPENGL pb.ER_TINY_RENDERER
     # print(pb.getDebugVisualizerCamera()[11]) #position of camera
-    pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
-                         cameraTargetPosition=[0, 0, 0.01],
-                         cameraUpVector=[0, 0, 1.0]
-                         )
     #print(alpha)
     time.sleep(dt)
 
