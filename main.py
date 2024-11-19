@@ -68,7 +68,7 @@ while True:
     x=pb.getBasePositionAndOrientation(c2)[0][0]
     y=pb.getBasePositionAndOrientation(c2)[0][1]
     while pow(x - xd,2) + pow(y - yd,2) > accuracy:
-        if xd-x != 0:
+        if yd-y != 0:
             omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
         movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
         newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
