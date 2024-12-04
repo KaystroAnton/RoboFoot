@@ -1,8 +1,7 @@
 import random
-
-import numpy as np
-import pybullet as pb
+from numpy import arctan, pi
 import pybullet_data
+import pybullet as pb
 import time
 import cv2
 import math
@@ -14,6 +13,7 @@ dx = 0.1    # distance from wheel axle to center
 alpha = 0   # the angle of the robot's course in radians (relative to the X axis)
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
+cameraHeight = 3.0 # Z coordinate of camera
 IMG_SIDE = 1000
 halfFieldSize = 4.0/2
 accuracy = 0.0005
@@ -30,7 +30,7 @@ pb.resetDebugVisualizerCamera(
     cameraDistance=1,
     cameraYaw=-90,
     cameraPitch=-89.999,    # No image if set on 90
-    cameraTargetPosition=[0.0, 0.0, 3.0]
+    cameraTargetPosition=[0.0, 0.0, cameraHeight]
 )   # Set сamera directly above the field
 
 pb.setGravity(0,0, g)
@@ -97,7 +97,7 @@ while True:
         viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
                                         cameraTargetPosition=[0, 0, 0.01],
                                         cameraUpVector=[1.0, 0, 0]),
-        projectionMatrix=pb.computeProjectionMatrixFOV(fov=2*np.arctan(halfFieldSize/pb.getDebugVisualizerCamera()[11][2])*180/np.pi,
+        projectionMatrix=pb.computeProjectionMatrixFOV(fov=2 * arctan(halfFieldSize / cameraHeight) * 180 / pi,
                                                        aspect=1,
                                                        nearVal=0.02,
                                                        farVal=3.5),
