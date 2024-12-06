@@ -1,11 +1,10 @@
 import random
-from numpy import arctan, pi
-import pybullet_data
 import pybullet as pb
 import time
 import cv2
 import math
-
+import numpy
+pb.isNumpyEnabled()
 # parameters of simulation
 L = 0.2    # length of the corpus
 d = 0.05     # diameter of wheels
@@ -14,7 +13,7 @@ alpha = 0   # the angle of the robot's course in radians (relative to the X axis
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
 cameraHeight = 3.0 # Z coordinate of camera
-IMG_SIDE = 1000
+IMG_SIDE = 800
 halfFieldSize = 4.0/2
 accuracy = 0.0005
 kd = 20 # koeff for control
@@ -26,12 +25,21 @@ yd = targetPosition[0][1]
 
 physicsClient = pb.connect(pb.GUI)  # pb.GUI for graphical version
 
+# camera settings
 pb.resetDebugVisualizerCamera(
     cameraDistance=1,
     cameraYaw=-90,
     cameraPitch=-89.999,    # No image if set on 90
     cameraTargetPosition=[0.0, 0.0, cameraHeight]
 )   # Set сamera directly above the field
+camera_view_matrix = pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
+                                        cameraTargetPosition=[0, 0, 0.01],
+                                        cameraUpVector=[1.0, 0, 0])
+camera_proj_matrix = pb.computeProjectionMatrixFOV(
+                    fov=2 * math.atan(halfFieldSize / cameraHeight) * 180 / math.pi,
+                    aspect=1,
+                    nearVal=0.02,
+                    farVal=3.5)
 
 pb.setGravity(0,0, g)
 
@@ -71,6 +79,19 @@ while True:
     y=pb.getBasePositionAndOrientation(c2)[0][1]
     for j in range(100):
         while pow(x - xd,2) + pow(y - yd,2) > accuracy:
+            img = pb.getCameraImage(
+                width=IMG_SIDE,
+                height=IMG_SIDE,
+                viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
+                                                cameraTargetPosition=[0, 0, 0.01],
+                                                cameraUpVector=[1.0, 0, 0]),
+                projectionMatrix=pb.computeProjectionMatrixFOV(
+                    fov=2 * math.atan(halfFieldSize / cameraHeight) * 180 / math.pi,
+                    aspect=1,
+                    nearVal=0.0,
+                    farVal=3.1),
+                renderer=pb.ER_TINY_RENDERER
+            )  # get image from camera
             omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
             movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
             newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
@@ -91,18 +112,6 @@ while True:
     print(pb.getBasePositionAndOrientation(c2))
     #print(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg")
     #print(pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(3)[1]), "dfgdfg11111")
-    img = pb.getCameraImage(
-        width=IMG_SIDE,
-        height=IMG_SIDE,
-        viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
-                                        cameraTargetPosition=[0, 0, 0.01],
-                                        cameraUpVector=[1.0, 0, 0]),
-        projectionMatrix=pb.computeProjectionMatrixFOV(fov=2 * arctan(halfFieldSize / cameraHeight) * 180 / pi,
-                                                       aspect=1,
-                                                       nearVal=0.02,
-                                                       farVal=3.5),
-        renderer=pb.ER_TINY_RENDERER
-    )
     # pb.ER_BULLET_HARDWARE_OPENGL pb.ER_TINY_RENDERER
     # print(pb.getDebugVisualizerCamera()[11]) #position of camera
     time.sleep(dt)
