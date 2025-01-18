@@ -5,6 +5,20 @@ import cv2
 import math
 import numpy
 pb.isNumpyEnabled()
+
+def reconstruct_frame(image,length,heigth):
+    new_image = [[[0,0,0] for j in range(length)] for i in range(heigth)]
+    counter = 0
+    for i in range(heigth):
+        for j in range(length):
+            for k in range(3):
+                new_image[i][j][k] = image[counter]
+                print(counter)
+                counter+= 1
+                if counter % 4 == 0:
+                    counter+= 1
+    return new_image
+
 # parameters of simulation
 L = 0.2    # length of the corpus
 d = 0.05     # diameter of wheels
@@ -71,15 +85,13 @@ detector = cv2.aruco.ArucoDetector(dictionary, parameters)
 #pb.resetBasePositionAndOrientation(robot1, posObj = [0,0,0], ornObj = pb.getQuaternionFromAxisAngle([0.0, 0.0, 1.0], 0))
 
 
-
-
 while True:
     alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
     x=pb.getBasePositionAndOrientation(c2)[0][0]
     y=pb.getBasePositionAndOrientation(c2)[0][1]
     for j in range(100):
         while pow(x - xd,2) + pow(y - yd,2) > accuracy:
-            img = pb.getCameraImage(
+            frame = pb.getCameraImage(
                 width=IMG_SIDE,
                 height=IMG_SIDE,
                 viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
@@ -91,7 +103,12 @@ while True:
                     nearVal=0.0,
                     farVal=3.1),
                 renderer=pb.ER_TINY_RENDERER
-            )  # get image from camera
+            )[2] # get frame from camera
+            print(frame)
+            new_frame = reconstruct_frame(frame,IMG_SIDE,IMG_SIDE)
+            print(new_frame)
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            #(corners, ids, rejected) = detector.detectMarkers(gray_frame)
             omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
             movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
             newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
