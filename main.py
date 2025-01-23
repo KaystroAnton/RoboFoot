@@ -15,7 +15,7 @@ alpha = 0   # the angle of the robot's course in radians (relative to the X axis
 dt = 1/240  # pybullet simulation step
 g = -9.8    # Gravity force
 cameraHeight = 3.0 # Z coordinate of camera
-IMG_SIDE = 800
+IMG_SIDE = 400
 halfFieldSize = 4.0/2
 accuracy = 0.0005
 kd = 20 # koeff for control
@@ -33,13 +33,10 @@ pb.resetDebugVisualizerCamera(
     cameraPitch=-89.999,    # No image if set on 90
     cameraTargetPosition=[0.0, 0.0, cameraHeight]
 )   # Set сamera directly above the field
-camera_view_matrix = pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
-                                        cameraTargetPosition=[0, 0, 0.01],
-                                        cameraUpVector=[1.0, 0, 0])
 camera_proj_matrix = pb.computeProjectionMatrixFOV(
                     fov=2 * math.atan(halfFieldSize / cameraHeight) * 180 / math.pi,
                     aspect=1,
-                    nearVal=0.02,
+                    nearVal=0.0,
                     farVal=3.5)
 
 pb.setGravity(0,0, g)
@@ -48,7 +45,7 @@ field = pb.loadURDF("field.urdf",[0,0,0])
 #robot1 = pb.loadURDF("robot.urdf",[0,0,0])
 
 # add aruco cube and aruco texture
-c1 = pb.loadURDF('aruco.urdf', (halfFieldSize-0.1, halfFieldSize-0.1, 0.0), useFixedBase=True)
+c1 = pb.loadURDF('aruco.urdf', (halfFieldSize-0.15, halfFieldSize-0.15, 0.0), useFixedBase=True)
 c2 = pb.loadURDF('aruco.urdf', (0, 0, 0.0), useFixedBase=True)
 x = pb.loadTexture('aruco_cube.png')
 pb.changeVisualShape(c1, -1, textureUniqueId=x)
@@ -84,18 +81,13 @@ while True:
                 viewMatrix=pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],
                                                 cameraTargetPosition=[0, 0, 0.01],
                                                 cameraUpVector=[1.0, 0, 0]),
-                projectionMatrix=pb.computeProjectionMatrixFOV(
-                    fov=2 * math.atan(halfFieldSize / cameraHeight) * 180 / math.pi,
-                    aspect=1,
-                    nearVal=0.0,
-                    farVal=3.1),
+                projectionMatrix=camera_proj_matrix,
                 renderer=pb.ER_TINY_RENDERER
-            )[2] # get frame from camera
-            print(frame)
+            ) # get frame from camera
             new_frame = help.get_frame(frame)
-            print(new_frame)
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-            #(corners, ids, rejected) = detector.detectMarkers(gray_frame)
+            #gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            (corners, ids, rejected) = detector.detectMarkers(new_frame)
+            print(corners, ids, rejected)
             omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
             movement = [math.cos(alpha)*v*dt,v*dt*math.sin(alpha),0]
             newPosition = [pb.getBasePositionAndOrientation(c2)[0][i]+movement[i] for i in range(3)]
@@ -104,6 +96,13 @@ while True:
             alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
             x = pb.getBasePositionAndOrientation(c2)[0][0]
             y = pb.getBasePositionAndOrientation(c2)[0][1]
+
+            img = cv2.UMat(new_frame)
+            cv2.aruco.drawDetectedMarkers(img, corners)
+            cv2.imshow('init', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
             pb.stepSimulation()
             time.sleep(dt)
         print("for", targetPosition, "is fine", j)
