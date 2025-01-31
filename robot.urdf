@@ -1,18 +1,18 @@
 <robot name="2wheeledRobot">
 
-    <material name="black">
-        <color rgba="0 0 0 1"/>
-    </material>
+<material name="black">
+    <color rgba="0 0 0 1"/>
+</material>
 
-    <material name="white">
-        <color rgba="1 1 1 1"/>
-    </material>
+<material name="white">
+    <color rgba="1 1 1 1"/>
+</material>
 
-    <material name="gray">
-        <color rgba="0.4 0.4 0.4 1"/>
-    </material>
+<material name="gray">
+    <color rgba="0.4 0.4 0.4 1"/>
+</material>
 
-    <link name="corpus">
+ <link name="corpus">
         <visual>
             <geometry>
                 <box size="0.2 0.2 0.05"/>
@@ -25,17 +25,17 @@
             <geometry>
                 <box size="0.2 0.2 0.05"/>
             </geometry>
-         </collision name="link_corpus_collision">
+         </collision>
          <inertial>
             <mass value="1"/>
             <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
         </inertial>
-    </link>
+ </link>
 
     <link name="left_wheel">
         <visual>
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <material name="gray"/>
@@ -47,7 +47,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
          </collision>
     </link>
@@ -55,7 +55,7 @@
     <link name="right_wheel">
         <visual>
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <material name="gray"/>
@@ -67,7 +67,7 @@
         <collision>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
         </collision>
     </link>
@@ -75,36 +75,36 @@
     <link name="center_wheel">
         <visual>
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <material name="gray"/>
         </visual>
         <inertial>
             <mass value="1"/>
-            <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+            <inertia ixx="0"  ixy="0."  ixz="0" iyy="0" iyz="0" izz="0" />
         </inertial>
         <collision>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <geometry>
-                <cylinder radius="0.05" length="0.05"/>
+                <cylinder radius="0.06" length="0.05"/>
             </geometry>
         </collision>
     </link>
-    <joint name="corpus_to_left_wheel" type="continuous">
+    <joint name="corpus_to_left_wheel" type="revolute">
         <parent link="corpus"/>
         <child link="left_wheel"/>
-        <origin xyz="-0.1 -0.1 0" rpy="0 -1.5707 -1.5707"/>
+        <origin xyz="-0.1 -0.125 0" rpy="0 -1.5707 -1.5707"/>
         <limit effort="0" velocity="0"/>
-        <dynamics damping="1" friction="0"/>
+        <dynamics damping="0" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
-    <joint name="corpus_to_right_wheel" type="continuous">
+    <joint name="corpus_to_right_wheel" type="revolute">
         <parent link="corpus"/>
         <child link="right_wheel"/>
-        <origin xyz="-0.1 0.1 0" rpy="0 -1.5707 -1.5707"/>
+        <origin xyz="-0.1 0.125 0" rpy="0 -1.5707 -1.5707"/>
         <limit effort="0" velocity="0"/>
-        <dynamics damping="1" friction="0"/>
+        <dynamics damping="0" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
     <joint name="corpus_to_center_wheel" type="revolute">
@@ -112,7 +112,7 @@
         <child link="center_wheel"/>
         <origin xyz="0.1 0 0" rpy="0 -1.5707 -1.5707"/>
         <limit effort="0" velocity="0"/>
-        <dynamics damping="1" friction="0"/>
+        <dynamics damping="0" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
 
