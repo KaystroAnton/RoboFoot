@@ -1,7 +1,7 @@
 import random
 import pybullet as pb
 import time
-import cv2
+import cv2 as cv
 import math
 import numpy as  np
 from pybullet import getLinkState, getNumJoints
@@ -55,10 +55,10 @@ pb.changeVisualShape(c1, -1, textureUniqueId=x)
 pb.changeVisualShape(c2, -1, textureUniqueId=x)
 
 #init aruco detector
-dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-parameters = cv2.aruco.DetectorParameters()
-parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
-detector = cv2.aruco.ArucoDetector(dictionary, parameters)
+dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_50)
+parameters = cv.aruco.DetectorParameters()
+parameters.cornerRefinementMethod = cv.aruco.CORNER_REFINE_SUBPIX
+detector = cv.aruco.ArucoDetector(dictionary, parameters)
 
 
 # get rid of all the default damping forces
@@ -72,7 +72,28 @@ pb.setJointMotorControl2(bodyIndex=robot1, jointIndex=0, targetVelocity= 10, con
 #pb.getAxisAngleFromQuaternion(pb.getBasePositionAndOrientation(robot1)[1])
 #pb.resetBasePositionAndOrientation(robot1, posObj = [0,0,0], ornObj = pb.getQuaternionFromAxisAngle([0.0, 0.0, 1.0], 0))
 
+cap = cv.VideoCapture(0)
+if not cap.isOpened():
+    print("Cannot open camera")
+    exit()
+while True:
+    # Capture frame-by-frame
+    ret, frame = cap.read()
 
+    # if frame is read correctly ret is True
+    if not ret:
+        print("Can't receive frame (stream end?). Exiting ...")
+        break
+    # Our operations on the frame come here
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    # Display the resulting frame
+    cv.imshow('frame', frame)
+    if cv.waitKey(1) == ord('q'):
+        break
+
+# When everything done, release the capture
+cap.release()
+cv.destroyAllWindows()
 while True:
     alpha = round(pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(c2)[1])[2], 3)
     x=pb.getBasePositionAndOrientation(c2)[0][0]
