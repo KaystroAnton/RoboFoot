@@ -9,6 +9,13 @@ from pybullet import getLinkState, getNumJoints
 import help
 pb.isNumpyEnabled()
 
+param_camera = help.calibrate_camera(help.load_images_from_folder())
+for i in range(10):
+    cv.imshow('img', help.load_images_from_folder()[i])
+    cv.waitKey(0)
+print(help.load_images_from_folder()[0])
+
+
 # parameters of simulation
 L = 0.2    # length of the corpus
 d = 0.05     # diameter of wheels

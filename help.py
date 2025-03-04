@@ -1,7 +1,7 @@
 import numpy as  np
 import cv2 as cv
-import glob
-import pybullet as pb
+import os
+
 def reconstruct_frame(image,length,heigth):
     new_image = [[[0,0,0] for j in range(length)] for i in range(heigth)]
     counter = 0
@@ -34,8 +34,7 @@ def calibrate_camera(images):
     objp = np.zeros((1, board_size[0] * board_size[1], 3), np.float32)
     objp[0, :, :2] = np.mgrid[0:board_size[0], 0:board_size[1]].T.reshape(-1, 2) # inserting the XY grid
     prev_img_shape = None
-    for fname in images:
-        img = cv.imread(fname)
+    for img in images:
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) # convert frame color from BGR to gray
         # Find the chess board corners
         ret, corners = cv.findChessboardCorners(gray, board_size) # Здесь я изменил, нужно посмотреть чтобы всё было хорошо, потом удалить запись
@@ -57,8 +56,17 @@ def calibrate_camera(images):
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None) # compute parameters
     return mtx, dist, rvecs, tvecs
 
-
-calibrate_camera()
+def load_images_from_folder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
+    images = []
+    for filename in os.listdir(path_folder):
+        if len(images) >= max_images:
+            break
+        img_path = os.path.join(path_folder, filename)
+        if os.path.isfile(img_path):  # Проверяем, является ли это файлом
+            img = cv.imread(img_path)
+            if img is not None:  # Проверяем, успешно ли загружено изображение
+                images.append(img)
+    return images
 
 
 
