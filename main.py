@@ -9,10 +9,10 @@ from pybullet import getLinkState, getNumJoints
 import help
 pb.isNumpyEnabled()
 
-param_camera = help.calibrate_camera(help.load_images_from_folder())
-for i in range(10):
-    cv.imshow('img', help.load_images_from_folder()[i])
-    cv.waitKey(0)
+param_camera = help.calibrate_camera(help.load_images_from_folder()) # get camera parameters
+help.calibrate_image(param_camera) # remove radial and tangential distortion
+
+
 print(help.load_images_from_folder()[0])
 
 

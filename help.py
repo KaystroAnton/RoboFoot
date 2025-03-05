@@ -20,7 +20,20 @@ def get_frame(frame):
     cvImg = pbImg[:, :, [2, 1, 0]]
     return cvImg
 
-def calibrate_camera(images):
+def load_images_from_folder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
+    images = []
+    for filename in os.listdir(path_folder):
+        if len(images) >= max_images:
+            break
+        img_path = os.path.join(path_folder, filename)
+        if os.path.isfile(img_path):  # Проверяем, является ли это файлом
+            img = cv.imread(img_path)
+            if img is not None:  # Проверяем, успешно ли загружено изображение
+                images.append(img)
+    return images
+
+
+def calibrate_camera(images): # get camera parameters
 
     board_size = (6,9) #determine the dimensions of the board (rows,columns)
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001) # termination criteria
@@ -56,17 +69,24 @@ def calibrate_camera(images):
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None) # compute parameters
     return mtx, dist, rvecs, tvecs
 
-def load_images_from_folder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
-    images = []
-    for filename in os.listdir(path_folder):
-        if len(images) >= max_images:
-            break
-        img_path = os.path.join(path_folder, filename)
-        if os.path.isfile(img_path):  # Проверяем, является ли это файлом
-            img = cv.imread(img_path)
-            if img is not None:  # Проверяем, успешно ли загружено изображение
-                images.append(img)
-    return images
+
+
+def calibrate_image(param): # remove radial and tangential distortion
+    images = load_images_from_folder()
+    for img in images:
+        h, w = img.shape[:2]
+        newcameramtx, roi = cv.getOptimalNewCameraMatrix(param[0], param[1], (w, h), 1, (w, h))
+        # undistort
+        dst = cv.undistort(img, param[0], param[1], None, newcameramtx)
+
+        # crop the image
+        x, y, w, h = roi
+        dst = dst[y:y + h, x:x + w]
+        cv.imshow('calibresult.png', dst)
+        cv.waitKey(0)
+
+
+
 
 
 
