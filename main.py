@@ -7,10 +7,14 @@ import numpy as  np
 from pybullet import getLinkState, getNumJoints
 
 import help
+from help import detect_auro
+
 pb.isNumpyEnabled()
 
+
 param_camera = help.calibrate_camera(help.load_images_from_folder()) # get camera parameters
-help.calibrate_image(param_camera) # remove radial and tangential distortion
+detect_auro(param_camera)
+help.calibrate_images(param_camera) # remove radial and tangential distortion
 
 
 print(help.load_images_from_folder()[0])
