@@ -2,6 +2,33 @@ import numpy as  np
 import cv2 as cv
 import os
 
+
+def loadImagesFromFolder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
+    images = []
+    for filename in os.listdir(path_folder):
+        if len(images) >= max_images:
+            break
+        img_path = os.path.join(path_folder, filename)
+        if os.path.isfile(img_path):  # Проверяем, является ли это файлом
+            img = cv.imread(img_path)
+            if img is not None:  # Проверяем, успешно ли загружено изображение
+                images.append(img)
+    return images
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #init aruco detector
 dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_50)
 parameters = cv.aruco.DetectorParameters()
@@ -21,23 +48,10 @@ def reconstruct_frame(image,length,heigth):
                     counter+= 1
     return new_image
 
-def get_frame(frame):
+def resize_frame(frame):
     pbImg = np.resize(np.asarray(frame[2], dtype=np.uint8), (frame[0], frame[1], 4))
     cvImg = pbImg[:, :, [2, 1, 0]]
     return cvImg
-
-def load_images_from_folder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
-    images = []
-    for filename in os.listdir(path_folder):
-        if len(images) >= max_images:
-            break
-        img_path = os.path.join(path_folder, filename)
-        if os.path.isfile(img_path):  # Проверяем, является ли это файлом
-            img = cv.imread(img_path)
-            if img is not None:  # Проверяем, успешно ли загружено изображение
-                images.append(img)
-    return images
-
 
 def calibrate_camera(images): # get camera parameters
 
@@ -60,9 +74,10 @@ def calibrate_camera(images): # get camera parameters
         if ret == True: # checking that all corners are found
             objpoints.append(objp)
             # refining pixel coordinates for given 2d points.
-            corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria) # шncreasing the accuracy of the angle coordinates
+            corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria) # increasing the accuracy of the angle coordinates
 
             imgpoints.append(corners2)
+            print(imgpoints)
 
             # Draw and display the corners
             img = cv.drawChessboardCorners(img, board_size, corners2, ret)

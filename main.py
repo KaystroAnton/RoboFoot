@@ -121,7 +121,10 @@ while True:
                 projectionMatrix=camera_proj_matrix,
                 renderer=pb.ER_TINY_RENDERER
             ) # get frame from camera
-            new_frame = help.get_frame(frame)
+            new_frame = help.resize_frame(frame)
+            cv.imshow('frame', new_frame)
+            if cv.waitKey(1) == ord('q'):
+                break
             (corners, ids, rejected) = detector.detectMarkers(new_frame)
             #print(corners, ids, rejected)
             omega = kd*(math.atan2((yd - y) , (xd - x)) - alpha)
