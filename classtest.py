@@ -24,11 +24,6 @@ class Stand:
             # get rid of all the default damping forces
             for j in range(pb.getNumJoints(self.robots[i])):
                 pb.changeDynamics(self.robots[i], j, linearDamping=0, angularDamping=0)
-        #   settings for robot
-        pb.setJointMotorControl2(bodyIndex=self.robots[0], jointIndex=1, targetVelocity=10, controlMode=pb.VELOCITY_CONTROL,
-                                 force=100)
-        pb.setJointMotorControl2(bodyIndex=self.robots[0], jointIndex=0, targetVelocity=10, controlMode=pb.VELOCITY_CONTROL,
-                                 force=100)
 
     def setCamera(self, params = Cam.cameraSetUp):
         'Sets the camera to the selected position'
