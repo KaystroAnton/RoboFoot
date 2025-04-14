@@ -15,7 +15,7 @@ while True:
     #if cv.waitKey(1) == ord('q'):
         #break
     # Display the resulting frame
-    cv.imshow('realFrame', Cam.detectAruco()[0])
+    #cv.imshow('realFrame', Cam.detectAruco()[0])
     #if Cam.detectAruco()[1] != []:
         #print(Cam.detectAruco()[1])
         #print(Cam.detectAruco()[1][0][0])
