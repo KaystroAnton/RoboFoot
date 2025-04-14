@@ -55,7 +55,7 @@ class Stand:
         'Using the specified detector, it returns the id of the found markers and a set of their angles.'
         (corners, ids, rejected) = detector.detectMarkers(cvImage)
         print (corners, ids, rejected)
-        return [corners, ids, rejected]
+        return [corners, ids]
 
     def setWheelsSpeed(self, robot, control = [100,100],  jointIndexes = [0,1], maxWheelSpeed = 10):
         'Sets the entered speeds(control) to the selected joints of the selected robot'
