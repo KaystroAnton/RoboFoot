@@ -40,20 +40,20 @@ class Stand:
         )  # changes the orientation and position of the camera, the parameters are specified in file CameraSetUp
         # without args, it sets the camera exactly above the center of the field
 
-    def getPbFrame(self,viewMatrix, params = Cam.imgSetUp):
+    def getPbImage(self,viewMatrix, params = Cam.imgSetUp):
         'returns an image from the pybullet camera with the specified viewMatrix'
         # computeViewMatrix: cameraEyePosition - coordinates of the camera, cameraTargetPosition - focus point, cameraUpVector - vector perpendicular to the camera direction
         return pb.getCameraImage(width=params[0],height=params[1],viewMatrix= viewMatrix,
                                   projectionMatrix=params[2], renderer=params[3]) # get frame from camera
 
-    def getCvFrame(self,viewMatrix, params = Cam.imgSetUp):
+    def getCvImage(self,viewMatrix, params = Cam.imgSetUp):
         'returns a resheped and gray image from the pybullet camera with the specified viewMatrix'
         # computeViewMatrix: cameraEyePosition - coordinates of the camera, cameraTargetPosition - focus point, cameraUpVector - vector perpendicular to the camera direction
-        return cv.cvtColor(help.resize_frame(self.getPbFrame(viewMatrix,params)),cv.COLOR_BGR2GRAY) # get frame from camera
+        return cv.cvtColor(help.resize_frame(self.getPbImage(viewMatrix,params)),cv.COLOR_BGR2GRAY) # get frame from camera
 
-    def detectAruco(self,cvFrame, detector= Detector.detector):
+    def detectAruco(self,cvImage, detector= Detector.detector):
         'Using the specified detector, it returns the id of the found markers and a set of their angles.'
-        (corners, ids, rejected) = detector.detectMarkers(cvFrame)
+        (corners, ids, rejected) = detector.detectMarkers(cvImage)
         print (corners, ids, rejected)
         return [corners, ids, rejected]
 

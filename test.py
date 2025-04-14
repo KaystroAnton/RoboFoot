@@ -11,7 +11,7 @@ stand.setCamera()
 viewMatrix = pb.computeViewMatrix(cameraEyePosition=pb.getDebugVisualizerCamera()[11],cameraTargetPosition=[0, 0, 0.01],cameraUpVector=[1.0, 0, 0])
 stand.setControl([[100,-100]])
 while True:
-    #cv.imshow('frame', stand.getCvFrame(viewMatrix))
+    #cv.imshow('frame', stand.getCvImage(viewMatrix))
     #if cv.waitKey(1) == ord('q'):
         #break
     # Display the resulting frame
