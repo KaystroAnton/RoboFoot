@@ -93,7 +93,7 @@ def calibrate_camera(images): # get camera parameters
 
 
 def calibrate_images(param): # remove radial and tangential distortion
-    for img in load_images_from_folder():
+    for img in loadImagesFromFolder():
         h, w = img.shape[:2]
         newcameramtx, roi = cv.getOptimalNewCameraMatrix(param[0], param[1], (w, h), 1, (w, h))
         # undistort
