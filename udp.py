@@ -18,7 +18,7 @@ print(socket.gethostname())
 sock_recv = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 sock_recv.setblocking(0)
-sock_recv.settimeout(1)
+sock_recv.settimeout(0.1)
 sock_recv.bind((UDP_IP1, UDP_PORT1))
 
 while True:
