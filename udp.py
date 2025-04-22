@@ -1,6 +1,6 @@
 import socket
 
-UDP_IP = "192.168.0.106"
+UDP_IP = "192.168.0.108"
 UDP_PORT = 2000
 MESSAGE = b"Hello, World!"
 
@@ -13,7 +13,7 @@ sock = socket.socket(socket.AF_INET, # Internet
 
 
 UDP_IP1 = "192.168.0.109"
-UDP_PORT1 = 2000
+UDP_PORT1 = 8888
 print(socket.gethostname())
 sock_recv = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
