@@ -2,6 +2,14 @@ import numpy as  np
 import cv2 as cv
 import os
 
+accuracyAnge = 10
+accuracyCoor = 5
+simStoppingAngel = 20
+
+def resize_frame(frame):
+    pbImg = np.resize(np.asarray(frame[2], dtype=np.uint8), (frame[0], frame[1], 4))
+    cvImg = pbImg[:, :, [2, 1, 0]]
+    return cvImg
 
 def loadImagesFromFolder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calibrateimages', max_images=10):
     images = []
@@ -15,6 +23,90 @@ def loadImagesFromFolder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calib
                 images.append(img)
     return images
 
+def fromvVectorToAngel(vector, vector1 = None):
+    if (vector1 == None):
+        vector1 = [1,0]
+    """ Returns the angle in radians between vectors 'v1' and 'v2'"""
+    vector = vector / np.linalg.norm(vector)
+    if (vector[1]>=vector1[1]):
+        return np.arccos(np.clip(np.dot(vector,vector1), -1.0, 1.0))/np.pi*180
+    elif(vector[1]<vector1[1]):
+        return 360 - np.arccos(np.clip(np.dot(vector,vector1), -1.0, 1.0))/np.pi*180
+
+
+def fromAngelToVector(angel):
+    return([np.cos(angel),np.sin(angel)])
+
+def positionControl(targetPosition,initPosition,initaAngel):
+    angelOnTarget = fromvVectorToAngel([targetPosition[0] - initPosition[0],targetPosition[1] - initPosition[1]])
+    if(abs(angelOnTarget - initaAngel) > accuracyAnge):
+        if(abs(angelOnTarget - initaAngel)<=180):
+            wheelSpeed =((angelOnTarget - initaAngel) / 180 * 100)
+        elif(abs(angelOnTarget - initaAngel)>180):
+            wheelSpeed = ((360 - angelOnTarget + initaAngel) / 180 * 100)
+        return(";"+str(int(wheelSpeed))+","+str(int(-wheelSpeed))+"/:")
+    else:
+        print("angel locked")
+        return(";0,0/:")
+
+def simPositionControl(targetPosition,initPosition,initaAngel,i,j):
+    accuracyCoord = accuracyCoor/(i+1)
+    accuracyAngel = accuracyAnge/(j+1)
+    angelOnTarget = fromvVectorToAngel([targetPosition[0] - initPosition[0],800 - targetPosition[1] - initPosition[1]])
+    if np.sqrt(pow(targetPosition[0] - initPosition[0], 2) + pow(targetPosition[1] - initPosition[1], 2) < accuracyCoord):
+        return [[0, 0], True]
+    if (turn(angelOnTarget - initaAngel,accuracyAngel) != [0,0]):
+        return [turn(angelOnTarget - initaAngel,accuracyAngel),False]
+    elif np.sqrt(pow(targetPosition[0] - initPosition[0],2) + pow(targetPosition[1] - initPosition[1],2) > accuracyCoord):
+        return [[100,100],False]
+    else:
+        return [[0,0],True]
+
+
+
+def turn(difAngel,accuracyAngel):
+    wheelSpeed = 0
+    if(abs(difAngel) > accuracyAngel):
+        if(abs(difAngel)<=180):
+            if abs(difAngel)>simStoppingAngel:
+                wheelSpeed =100
+            else:
+                wheelSpeed =(abs(difAngel) / simStoppingAngel * 100)
+        elif(abs(difAngel)>180):
+            if (360 - abs(difAngel))>simStoppingAngel:
+                wheelSpeed = 100
+            else:
+                wheelSpeed = ((360 - abs(difAngel)) / simStoppingAngel * 100)
+        if (0<difAngel<180):
+            wheelSpeed = -wheelSpeed
+        elif(-180<difAngel<0):
+            pass
+        elif(difAngel>=180):
+            pass
+        else:
+            wheelSpeed = -wheelSpeed
+        return([wheelSpeed,-wheelSpeed])
+    else:
+        print("angel locked")
+        return([0,0])
+
+def posControler(refPosition,robotPosision,roborOriantation):
+    e0 = (fromvVectorToAngel([refPosition[0] - robotPosision[0],refPosition[1] - robotPosision[1]])- roborOriantation)*np.pi/180.0
+    es = np.sqrt(pow(refPosition[0]-robotPosision[0],2) + pow(refPosition[1]-robotPosision[1],2))*np.cos(e0)
+    if np.sqrt(pow(refPosition[0] - robotPosision[0],2) + pow(refPosition[1] - robotPosision[1],2) > accuracyCoor):
+        return [regulator(e0,es),False]
+    else:
+        return [[0,0], True]
+
+def posAndJrientControl(refPosition,refOrientation,robotPosision,roborOriantation):
+    gamma = fromvVectorToAngel([refPosition[0] - robotPosision[0],refPosition[1] - robotPosision[1]]) - refOrientation
+    xRef = robotPosision[0] +np.sqrt(pow(refPosition[0]-robotPosision[0],2) + pow(refPosition[1]-robotPosision[1],2))* np.cos(gamma)
+    yRef = robotPosision[0] +np.sqrt(pow(refPosition[0]-robotPosision[0],2) + pow(refPosition[1]-robotPosision[1],2))* np.sin(gamma)
+    return posControler([xRef,yRef],robotPosision,roborOriantation)
+
+def regulator(angle, dist):
+    [motorL, motorR]=[0,0]
+    return [motorL,motorR]
 
 
 
@@ -29,154 +121,14 @@ def loadImagesFromFolder(path_folder= 'C:\PythonProjects\RoboFoot\RoboFoot\calib
 
 
 
-#init aruco detector
-dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_50)
-parameters = cv.aruco.DetectorParameters()
-parameters.cornerRefinementMethod = cv.aruco.CORNER_REFINE_SUBPIX
-detector = cv.aruco.ArucoDetector(dictionary, parameters)
-
-def reconstruct_frame(image,length,heigth):
-    new_image = [[[0,0,0] for j in range(length)] for i in range(heigth)]
-    counter = 0
-    for i in range(heigth):
-        for j in range(length):
-            for k in range(3):
-                new_image[i][j][k] = image[counter]
-                print(counter)
-                counter+= 1
-                if counter % 4 == 0:
-                    counter+= 1
-    return new_image
-
-def resize_frame(frame):
-    pbImg = np.resize(np.asarray(frame[2], dtype=np.uint8), (frame[0], frame[1], 4))
-    cvImg = pbImg[:, :, [2, 1, 0]]
-    return cvImg
-
-def calibrate_camera(images): # get camera parameters
-
-    board_size = (6,9) #determine the dimensions of the board (rows,columns)
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001) # termination criteria
-
-    # Creating vector to store vectors of 3D points for each checkerboard image
-    objpoints = []
-    # Creating vector to store vectors of 2D points for each checkerboard image
-    imgpoints = []
-
-    # Defining the world coordinates for 3D points
-    objp = np.zeros((1, board_size[0] * board_size[1], 3), np.float32)
-    objp[0, :, :2] = np.mgrid[0:board_size[0], 0:board_size[1]].T.reshape(-1, 2) # inserting the XY grid
-    prev_img_shape = None
-    for img in images:
-        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) # convert frame color from BGR to gray
-        # Find the chess board corners
-        ret, corners = cv.findChessboardCorners(gray, board_size)
-        if ret == True: # checking that all corners are found
-            objpoints.append(objp)
-            # refining pixel coordinates for given 2d points.
-            corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria) # increasing the accuracy of the angle coordinates
-
-            imgpoints.append(corners2)
-            print(imgpoints)
-
-            # Draw and display the corners
-            img = cv.drawChessboardCorners(img, board_size, corners2, ret)
-
-        #cv.imshow('img', img)
-        #cv.waitKey(0)
-
-
-    cv.destroyAllWindows()
-    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None) # compute parameters
-    return mtx, dist, rvecs, tvecs
 
 
 
-def calibrate_images(param): # remove radial and tangential distortion
-    for img in loadImagesFromFolder():
-        h, w = img.shape[:2]
-        newcameramtx, roi = cv.getOptimalNewCameraMatrix(param[0], param[1], (w, h), 1, (w, h))
-        # undistort
-        dst = cv.undistort(img, param[0], param[1], None, newcameramtx)
 
-        # crop the image
-        x, y, w, h = roi
-        dst = dst[y:y + h, x:x + w]
-        #cv.imshow('calibresult.png', dst)
-        #cv.waitKey(0)
 
-def calibrate_image(param,image): # remove radial and tangential distortion
-        img = image
-        h, w = img.shape[:2]
-        newcameramtx, roi = cv.getOptimalNewCameraMatrix(param[0], param[1], (w, h), 1, (w, h))
-        # undistort
-        dst = cv.undistort(img, param[0], param[1], None, newcameramtx)
 
-        # crop the image
-        x, y, w, h = roi
-        dst = dst[y:y + h, x:x + w]
-        #cv.imshow('calibresult.png', dst)
-        #cv.waitKey(0)
-        return dst
 
-def detect_auro(param):
-    # Start the video stream
-    cap = cv.VideoCapture(0)
-    while (True):
-        # Capture frame-by-frame
-        # This method returns True/False as well
-        # as the video frame.
-        ret, video_frame = cap.read()
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
-        frame = calibrate_image(param,video_frame)
-        (corners, ids, rejected) = detector.detectMarkers(frame)
-        # Check that at least one ArUco marker was detected
-        if len(corners) > 0:
-            # Flatten the ArUco IDs list
-            ids = ids.flatten()
-            # Loop over the detected ArUco corners
-            for (marker_corner, marker_id) in zip(corners, ids):
-                # Extract the marker corners
-                corners = marker_corner.reshape((4, 2))
-                (top_left, top_right, bottom_right, bottom_left) = corners
 
-                # Convert the (x,y) coordinate pairs to integers
-                top_right = (int(top_right[0]), int(top_right[1]))
-                bottom_right = (int(bottom_right[0]), int(bottom_right[1]))
-                bottom_left = (int(bottom_left[0]), int(bottom_left[1]))
-                top_left = (int(top_left[0]), int(top_left[1]))
-
-                # Draw the bounding box of the ArUco detection
-                cv.line(frame, top_left, top_right, (0, 255, 0), 2)
-                cv.line(frame, top_right, bottom_right, (0, 255, 0), 2)
-                cv.line(frame, bottom_right, bottom_left, (0, 255, 0), 2)
-                cv.line(frame, bottom_left, top_left, (0, 255, 0), 2)
-
-                # Calculate and draw the center of the ArUco marker
-                center_x = int((top_left[0] + bottom_right[0]) / 2.0)
-                center_y = int((top_left[1] + bottom_right[1]) / 2.0)
-                cv.circle(frame, (center_x, center_y), 4, (0, 0, 255), -1)
-
-                # Draw the ArUco marker ID on the video frame
-                # The ID is always located at the top_left of the ArUco marker
-                cv.putText(frame, str(marker_id),
-                            (top_left[0], top_left[1] - 15),
-                            cv.FONT_HERSHEY_SIMPLEX,
-                            0.5, (0, 255, 0), 2)
-
-            # Display the resulting frame
-        cv.imshow('frame', frame)
-
-        # If "q" is pressed on the keyboard,
-        # exit this loop
-        if cv.waitKey(1) & 0xFF == ord('q'):
-            break
-
-        # Close down the video stream
-    cap.release()
-    cv.destroyAllWindows()
 
 
 

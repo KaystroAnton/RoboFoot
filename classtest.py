@@ -4,7 +4,7 @@ import numpy as np
 import CameraSetUp as Cam
 import ArucoDetectorSetUp as Detector
 import help
-
+from help import fromvVectorToAngel,fromAngelToVector
 # for more info about function print(name_of_the_class_instance.function_name.__doc__)
 class Stand:
     'Creat a stand'
@@ -49,10 +49,54 @@ class Stand:
     def detectAruco(self,cvImage, detector= Detector.detector):
         'Using the specified detector, it returns the id of the found markers and a set of their angles.'
         (corners, ids, rejected) = detector.detectMarkers(cvImage)
-        print (corners, ids, rejected)
-        return [corners, ids]
+        cvImage1 = cv.cvtColor(cvImage, cv.COLOR_GRAY2BGR)
+        centers = []
+        angels = []
+        marckers = []
+        # Check that at least one ArUco marker was detected
+        if len(corners) > 0:
+            # Flatten the ArUco IDs list
+            ids = ids.flatten()
+            # Loop over the detected ArUco corners
+            for (marker_corner, marker_id) in zip(corners, ids):
+                marckers.append(marker_id)
+                # Extract the marker corners
+                corners = marker_corner.reshape((4, 2))
+                (top_left, top_right, bottom_right, bottom_left) = corners
 
-    def setWheelsSpeed(self, robot, control = [100,100],  jointIndexes = [0,1], maxWheelSpeed = 10):
+                # Convert the (x,y) coordinate pairs to integers
+                top_right = (int(top_right[0]), int(top_right[1]))
+                bottom_right = (int(bottom_right[0]), int(bottom_right[1]))
+                bottom_left = (int(bottom_left[0]), int(bottom_left[1]))
+                top_left = (int(top_left[0]), int(top_left[1]))
+
+                # Draw the bounding box of the ArUco detection
+                cv.line(cvImage1, top_left, top_right, (0, 255, 0), 2)
+                cv.line(cvImage1, top_right, bottom_right, (0, 255, 0), 2)
+                cv.line(cvImage1, bottom_right, bottom_left, (0, 255, 0), 2)
+                cv.line(cvImage1, bottom_left, top_left, (0, 255, 0), 2)
+
+                # Calculate and draw the center of the ArUco marker
+                center_x = int((top_left[0] + bottom_right[0]) / 2.0)
+                center_y = int((top_left[1] + bottom_right[1]) / 2.0)
+                cv.circle(cvImage1, (center_x, center_y), 4, (0, 0, 255), -1)
+                centers.append([center_x, 800-center_y])
+                cv.line(cvImage1, [center_x,center_y], [int(top_left[0] + (top_right[0] - top_left[0])/2.0), int(top_left[1] + (top_right[1] - top_left[1])/2.0)] , (0, 255, 0), 2)
+
+                # Calculate vector of the robot
+                angels.append(fromvVectorToAngel([top_left[0] + (top_right[0] - top_left[0]) / 2.0 - center_x,
+                                                  800-top_left[1] + (800-top_right[1] - 800+ top_left[1]) / 2.0 - 800+ center_y]))
+
+                # Draw the ArUco marker ID on the video frame
+                # The ID is always located at the top_left of the ArUco marker
+                cv.putText(cvImage1, str(marker_id),
+                           (top_left[0], top_left[1] - 15),
+                           cv.FONT_HERSHEY_SIMPLEX,
+                           0.5, (0, 255, 0), 2)
+            return (cvImage1, centers, angels, marckers)
+        return (cvImage1, "no aruco")
+
+    def setWheelsSpeed(self, robot, control = [100,100],  jointIndexes = [1,0], maxWheelSpeed = 20):
         'Sets the entered speeds(control) to the selected joints of the selected robot'
         if len(control) != len(jointIndexes): #checking the entered data
             raise ValueError(str(self) + "the size of the control list does not match the number of changed joints")
@@ -66,6 +110,14 @@ class Stand:
             raise ValueError(str(self) + "the size of the control list does not match the number of robots")
         for iterr in range(len(self.robots)):
             self.setWheelsSpeed(self.robots[iterr],control[iterr])
+
+    def setArucoOnRobot(self,robot,aruco):
+        robotPos = pb.getBasePositionAndOrientation(robot)[0]
+        robotOri = pb.getEulerFromQuaternion(pb.getBasePositionAndOrientation(robot)[1])
+        robotOri = [robotOri[0],robotOri[1],robotOri[2] - np.pi/2.0]
+        robotOri = pb.getQuaternionFromEuler(robotOri)
+        pb.resetBasePositionAndOrientation(aruco, [robotPos[0],robotPos[1],robotPos[2]+0.1],robotOri)
+
 
 class RealCamera:
     'communication with real camera'
@@ -131,7 +183,9 @@ class RealCamera:
             calibratedFrame = self.calibrateFrame(frame, calibrateParam)
         else:
             calibratedFrame= frame
-        returns = []
+        centers = []
+        angels = []
+        marckers = []
         (corners, ids, rejected) = detector.detectMarkers(calibratedFrame)
         # Check that at least one ArUco marker was detected
         if len(corners) > 0:
@@ -139,16 +193,17 @@ class RealCamera:
             ids = ids.flatten()
             # Loop over the detected ArUco corners
             for (marker_corner, marker_id) in zip(corners, ids):
+                marckers.append(marker_id)
                 # Extract the marker corners
                 corners = marker_corner.reshape((4, 2))
                 (top_left, top_right, bottom_right, bottom_left) = corners
-                returns.append([corners,marker_id])
 
                 # Convert the (x,y) coordinate pairs to integers
                 top_right = (int(top_right[0]), int(top_right[1]))
                 bottom_right = (int(bottom_right[0]), int(bottom_right[1]))
                 bottom_left = (int(bottom_left[0]), int(bottom_left[1]))
                 top_left = (int(top_left[0]), int(top_left[1]))
+
 
                 # Draw the bounding box of the ArUco detection
                 cv.line(calibratedFrame, top_left, top_right, (0, 255, 0), 2)
@@ -160,6 +215,10 @@ class RealCamera:
                 center_x = int((top_left[0] + bottom_right[0]) / 2.0)
                 center_y = int((top_left[1] + bottom_right[1]) / 2.0)
                 cv.circle(calibratedFrame, (center_x, center_y), 4, (0, 0, 255), -1)
+                centers.append([center_x,center_y])
+
+                # Calculate vector of the robot
+                angels.append(fromvVectorToAngel([top_left[0] + (top_right[0] - top_left[0])/2.0 -center_x, top_left[1] + (top_right[1] - top_left[1])/2.0 -center_y]))
 
                 # Draw the ArUco marker ID on the video frame
                 # The ID is always located at the top_left of the ArUco marker
@@ -167,9 +226,8 @@ class RealCamera:
                            (top_left[0], top_left[1] - 15),
                            cv.FONT_HERSHEY_SIMPLEX,
                            0.5, (0, 255, 0), 2)
-
-        # corners returns as [(top_left, top_right, bottom_right, bottom_left)]
-        return (calibratedFrame,returns)
+            return (calibratedFrame, centers, angels,marckers)
+        return (calibratedFrame,"no aruco")
 
 
 

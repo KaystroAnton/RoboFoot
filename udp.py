@@ -1,6 +1,6 @@
 import socket
 
-UDP_IP = "192.168.0.108"
+UDP_IP = "192.168.0.107"
 UDP_PORT = 2000
 MESSAGE = b"Hello, World!"
 
@@ -20,6 +20,7 @@ sock_recv = socket.socket(socket.AF_INET, # Internet
 sock_recv.setblocking(0)
 sock_recv.settimeout(0.1)
 sock_recv.bind((UDP_IP1, UDP_PORT1))
+
 
 while True:
     try:

@@ -1,6 +1,6 @@
 import pybullet as pb
 import math
-imgSide = 200
+imgSide = 800
 halfFieldSize = 4.0/2
 cameraHeight = 3.0 # Z coordinate of camera
 cameraSetUp = [3, 90 ,89.999, [0.0, 0.0, cameraHeight]] # [cameraDistance, cameraYaw, cameraPitch,cameraTargetPosition]

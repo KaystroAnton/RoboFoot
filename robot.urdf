@@ -79,7 +79,7 @@
     <link name="center_wheel">
         <visual>
             <geometry>
-                <cylinder radius="0.06" length="0.05"/>
+                <sphere radius="0.03"/>
             </geometry>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <material name="gray"/>
@@ -91,11 +91,11 @@
         <collision>
             <origin xyz="0.0 0 0" rpy="0 0 0" />
             <geometry>
-                <cylinder radius="0.06" length="0.05"/>
+                <sphere radius="0.03"/>
             </geometry>
         </collision>
     </link>
-    <joint name="corpus_to_left_wheel" type="revolute">
+    <joint name="corpus_to_right_wheel" type="revolute">
         <parent link="corpus"/>
         <child link="left_wheel"/>
         <origin xyz="-0.1 -0.125 0" rpy="0 -1.5707 -1.5707"/>
@@ -103,7 +103,7 @@
         <dynamics damping="0" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
-    <joint name="corpus_to_right_wheel" type="revolute">
+    <joint name="corpus_to_left_wheel" type="revolute">
         <parent link="corpus"/>
         <child link="right_wheel"/>
         <origin xyz="-0.1 0.125 0" rpy="0 -1.5707 -1.5707"/>
@@ -111,13 +111,13 @@
         <dynamics damping="0" friction="0"/>
         <axis xyz="0 0 1"/>
     </joint>
-    <joint name="corpus_to_center_wheel" type="revolute">
+    <joint name="corpus_to_center_wheel" type="spherical">
         <parent link="corpus"/>
         <child link="center_wheel"/>
-        <origin xyz="0.1 0 0" rpy="0 -1.5707 -1.5707"/>
+        <origin xyz="0.1 0 -0.03" rpy="0 0 0"/>
         <limit effort="0" velocity="0"/>
         <dynamics damping="0" friction="0"/>
-        <axis xyz="0 0 1"/>
+        <axis xyz="1 1 1"/>
     </joint>
 
 

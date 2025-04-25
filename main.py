@@ -21,8 +21,8 @@ print(help.load_images_from_folder()[0])
 
 
 # parameters of simulation
-L = 0.2    # length of the corpus
-d = 0.05     # diameter of wheels
+L = 0.14    # length of the corpus
+d = 0.064     # diameter of wheels
 dx = 0.1    # distance from wheel axle to center
 alpha = 0   # the angle of the robot's course in radians (relative to the X axis)
 dt = 1/240  # pybullet simulation step
